@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/Header";
@@ -7,6 +8,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -48,7 +50,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { UserPlus, Edit, Trash2, Shield, User, History } from "lucide-react";
+import { UserPlus, Edit, Trash2, Shield, User, History, Users, Database, ChevronRight } from "lucide-react";
 
 interface UserData {
   id: string;
@@ -70,6 +72,7 @@ interface LoginHistoryRecord {
 }
 
 export default function UserManagement() {
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
@@ -81,6 +84,23 @@ export default function UserManagement() {
     phone: "",
     role: "user" as "user" | "admin",
   });
+
+  const menuItems = [
+    {
+      id: "user-management",
+      label: "User Management",
+      icon: Users,
+      description: "Manage system users and permissions",
+      onClick: () => setLocation("/users"),
+    },
+    {
+      id: "student-management",
+      label: "Student Management",
+      icon: Database,
+      description: "Manage student database",
+      onClick: () => setLocation("/admin/settings"),
+    },
+  ];
 
   // Fetch users
   const { data: users, isLoading } = useQuery<UserData[]>({
@@ -222,13 +242,57 @@ export default function UserManagement() {
       <Header />
 
       <main className="w-[90%] mx-auto px-4 md:px-6 py-6 flex-1">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-2xl">User Management</CardTitle>
-                <CardDescription>Manage system users and their roles</CardDescription>
-              </div>
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold mb-2">System Settings</h1>
+          <p className="text-muted-foreground">Manage system configuration and data</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {/* Left Sidebar Menu */}
+          <div className="md:col-span-1">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Admin Menu</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <nav className="space-y-1">
+                  {menuItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = item.id === "user-management";
+
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={item.onClick}
+                        className={cn(
+                          "w-full flex items-center justify-between px-4 py-3 text-left transition-colors",
+                          isActive
+                            ? "bg-primary text-primary-foreground"
+                            : "hover:bg-muted"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className="w-5 h-5" />
+                          <span className="font-medium">{item.label}</span>
+                        </div>
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    );
+                  })}
+                </nav>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="md:col-span-3">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-2xl">User Management</CardTitle>
+                    <CardDescription>Manage system users and their roles</CardDescription>
+                  </div>
 
               <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogTrigger asChild>
@@ -308,7 +372,7 @@ export default function UserManagement() {
             </div>
           </CardHeader>
 
-          <CardContent>
+              <CardContent>
             {isLoading ? (
               <div className="text-center py-8">Loading users...</div>
             ) : (
@@ -457,8 +521,10 @@ export default function UserManagement() {
                 </TableBody>
               </Table>
             )}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
         {/* Login History Dialog */}
         <Dialog open={!!viewingHistoryUser} onOpenChange={(open) => !open && setViewingHistoryUser(null)}>

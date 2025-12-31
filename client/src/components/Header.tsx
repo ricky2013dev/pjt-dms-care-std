@@ -1,9 +1,14 @@
 import { useLocation } from "wouter";
-import { LayoutDashboard, Users, Shield, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Shield, LogOut, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { APP_CONFIG } from "@/config/app";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function Header() {
   const [location, setLocation] = useLocation();
@@ -13,11 +18,6 @@ export function Header() {
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/students', label: 'Students', icon: Users }
   ];
-
-  // Add User Management for admins
-  if (user?.role === "admin") {
-    navItems.push({ path: '/users', label: 'Users', icon: Shield });
-  }
 
   return (
     <header className="border-b bg-background sticky top-0 z-50">
@@ -49,6 +49,27 @@ export function Header() {
                 </button>
               ))}
             </nav>
+
+            {/* Admin Settings Icon */}
+            {user?.role === "admin" && (
+              <div className="border-l pl-4">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={location === "/admin/settings" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setLocation("/admin/settings")}
+                    >
+                      <Settings className="w-4 h-4 md:mr-2" />
+                      <span className="hidden md:inline">Settings</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>System Settings</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            )}
 
             {/* User section */}
             <div className="flex items-center gap-2 border-l pl-4">

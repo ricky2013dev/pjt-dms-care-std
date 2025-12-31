@@ -24,7 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ArrowLeft, Save, RotateCcw, Upload } from "lucide-react";
+import { ArrowLeft, Save, RotateCcw } from "lucide-react";
 import { courses } from "@/data/courses";
 
 export default function AddStudent() {
@@ -93,11 +93,6 @@ export default function AddStudent() {
                 <CardTitle className="text-2xl">Add New Student</CardTitle>
                 <CardDescription>Enter student information below. Fields marked with * are required.</CardDescription>
               </div>
-              <Button variant="outline" onClick={() => setLocation("/students/import")} className="w-full md:w-auto">
-                <Upload className="w-4 h-4 mr-2" />
-                <span className="md:hidden">Import</span>
-                <span className="hidden md:inline">Bulk Import</span>
-              </Button>
             </div>
           </CardHeader>
           <CardContent>

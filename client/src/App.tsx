@@ -9,8 +9,8 @@ import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import StudentList from "@/pages/StudentList";
 import AddStudent from "@/pages/AddStudent";
-import BulkImport from "@/pages/BulkImport";
 import UserManagement from "@/pages/UserManagement";
+import AdminSettings from "@/pages/AdminSettings";
 
 function Router() {
   return (
@@ -37,16 +37,16 @@ function Router() {
         </ProtectedRoute>
       </Route>
 
-      <Route path="/students/import">
-        <ProtectedRoute>
-          <BulkImport />
-        </ProtectedRoute>
-      </Route>
-
-      {/* Admin-only route */}
+      {/* Admin-only routes */}
       <Route path="/users">
         <ProtectedRoute requireAdmin>
           <UserManagement />
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/admin/settings">
+        <ProtectedRoute requireAdmin>
+          <AdminSettings />
         </ProtectedRoute>
       </Route>
 

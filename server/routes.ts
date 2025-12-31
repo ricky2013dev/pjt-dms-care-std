@@ -6,7 +6,7 @@ import { db } from "./db";
 import { sql, eq, gte, inArray } from "drizzle-orm";
 import { registerAuthRoutes } from "./auth/routes";
 import { registerUserRoutes } from "./users/routes";
-import { requireAuth } from "./auth/middleware";
+import { requireAuth, requireAdmin } from "./auth/middleware";
 import { sendStudentStatusChangeEmail } from "./email/service";
 import { z } from "zod";
 
@@ -216,6 +216,17 @@ export async function registerRoutes(
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete student" });
+    }
+  });
+
+  // Admin-only: Delete all students
+  app.delete("/api/admin/students/all", requireAdmin, async (req, res) => {
+    try {
+      await db.delete(students);
+      res.json({ success: true, message: "All students deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting all students:", error);
+      res.status(500).json({ error: "Failed to delete all students" });
     }
   });
 

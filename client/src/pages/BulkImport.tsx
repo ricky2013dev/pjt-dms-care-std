@@ -8,7 +8,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Upload, FileText } from "lucide-react";
+import { ArrowLeft, Upload, FileText, Copy, Check, Download } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function BulkImport() {
@@ -17,6 +17,7 @@ export default function BulkImport() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<any[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
+  const [copied, setCopied] = useState(false);
 
   const importMutation = useMutation({
     mutationFn: async (csvData: string) => {
@@ -158,6 +159,70 @@ export default function BulkImport() {
     reader.readAsText(file);
   };
 
+  const sampleCSV = `name,email,phone,interested_medical_professions,location,status,current_status_citizenship,current_situation,timestamp
+John Smith,john.smith@email.com,555-010-1001,Nursing,New York,pending,Citizen,Student,01/15/2024
+Maria Garcia,maria.garcia@email.com,555-010-1002,Medical Assistant,Los Angeles,active,Permanent Resident,Employed Part-time,01/16/2024
+David Chen,david.chen@email.com,555-010-1003,Dental Assistant,Chicago,enrolled,Work Visa,Unemployed,01/17/2024
+Sarah Johnson,sarah.j@email.com,555-010-1004,Pharmacy Technician,Houston,enrolled,Citizen,Career Change,01/18/2024
+Ahmed Hassan,ahmed.h@email.com,555-010-1005,Physical Therapy Assistant,Miami,inactive,Asylum Seeker,Student,01/19/2024`;
+
+  const generateLargeCSV = () => {
+    const firstNames = ["John", "Maria", "David", "Sarah", "Ahmed", "Lisa", "Michael", "Jennifer", "Carlos", "Emily", "Robert", "Patricia", "James", "Linda", "William", "Barbara", "Richard", "Elizabeth", "Joseph", "Susan", "Thomas", "Jessica", "Charles", "Karen", "Daniel", "Nancy", "Matthew", "Betty", "Anthony", "Margaret", "Mark", "Sandra", "Donald", "Ashley", "Steven", "Kimberly", "Paul", "Emily", "Andrew", "Donna", "Joshua", "Michelle", "Kenneth", "Carol", "Kevin", "Amanda", "Brian", "Melissa", "George", "Deborah"];
+    const lastNames = ["Smith", "Garcia", "Chen", "Johnson", "Hassan", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Martinez", "Robinson", "Clark", "Rodriguez", "Lewis", "Lee", "Walker", "Hall", "Allen", "Young", "Hernandez", "King", "Wright", "Lopez", "Hill", "Scott", "Green", "Adams", "Baker", "Gonzalez", "Nelson", "Carter", "Mitchell", "Perez", "Roberts", "Turner", "Phillips", "Campbell", "Parker", "Evans", "Edwards", "Collins"];
+    const professions = ["Nursing", "Medical Assistant", "Dental Assistant", "Pharmacy Technician", "Physical Therapy Assistant", "Radiology Technician", "Medical Billing Specialist", "Phlebotomy Technician", "Occupational Therapy Assistant", "Respiratory Therapist", "Surgical Technician", "Medical Transcriptionist", "Clinical Laboratory Technician", "Home Health Aide", "EMT/Paramedic"];
+    const cities = ["New York", "Los Angeles", "Chicago", "Houston", "Miami", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville", "Fort Worth", "Columbus", "Charlotte", "San Francisco", "Indianapolis", "Seattle", "Denver"];
+    const statuses = ["pending", "active", "enrolled", "inactive", "graduated"];
+    const citizenshipStatuses = ["Citizen", "Permanent Resident", "Work Visa", "Student Visa", "Asylum Seeker", "Refugee Status", "Temporary Protected Status"];
+    const situations = ["Student", "Employed Part-time", "Unemployed", "Career Change", "Recent Graduate", "Military Veteran", "Full-time Employee", "Self-employed", "Homemaker"];
+
+    let csv = "name,email,phone,interested_medical_professions,location,status,current_status_citizenship,current_situation,timestamp\n";
+
+    for (let i = 0; i < 50; i++) {
+      const firstName = firstNames[i % firstNames.length];
+      const lastName = lastNames[i % lastNames.length];
+      const name = `${firstName} ${lastName}`;
+      const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i}@email.com`;
+      const phone = `555-${String(100 + Math.floor(i / 100)).padStart(3, '0')}-${String(1000 + (i % 100)).padStart(4, '0')}`;
+      const profession = professions[i % professions.length];
+      const city = cities[i % cities.length];
+      const status = statuses[i % statuses.length];
+      const citizenship = citizenshipStatuses[i % citizenshipStatuses.length];
+      const situation = situations[i % situations.length];
+
+      // Generate dates spread across January-March 2024
+      const day = (i % 28) + 1;
+      const month = ((i % 3) + 1);
+      const timestamp = `${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}/2024`;
+
+      csv += `${name},${email},${phone},${profession},${city},${status},${citizenship},${situation},${timestamp}\n`;
+    }
+
+    return csv;
+  };
+
+  const handleCopyCSV = () => {
+    navigator.clipboard.writeText(sampleCSV);
+    setCopied(true);
+    toast({ title: "Copied!", description: "Sample CSV copied to clipboard" });
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownloadCSV = () => {
+    const csvContent = generateLargeCSV();
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'sample_students_50_records.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({ title: "Downloaded!", description: "Sample CSV with 50 records downloaded" });
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
@@ -176,7 +241,10 @@ export default function BulkImport() {
             <Alert>
               <FileText className="h-4 w-4" />
               <AlertDescription>
-                CSV Format: name, email, phone, courseInterested, location, status, citizenshipStatus, currentSituation, registrationDate
+                <div className="space-y-1">
+                  <div>CSV Format: name, email, phone, interested_medical_professions, location, status, current_status_citizenship, current_situation, timestamp</div>
+                  <div className="text-xs mt-2">Valid status values: pending, active, enrolled, inactive, graduated</div>
+                </div>
               </AlertDescription>
             </Alert>
 
@@ -228,15 +296,47 @@ export default function BulkImport() {
         <Card>
           <CardHeader>
             <CardTitle>Sample CSV File</CardTitle>
-            <CardDescription>Download and use this template for your import</CardDescription>
+            <CardDescription>Copy this template and modify it for your import</CardDescription>
           </CardHeader>
-          <CardContent>
-            <a href="/sample_student.csv" download className="inline-block">
-              <Button variant="outline">
-                <FileText className="w-4 h-4 mr-2" />
-                Download Sample CSV
+          <CardContent className="space-y-4">
+            <div className="relative">
+              <pre className="p-4 bg-muted rounded-md overflow-x-auto text-xs border">
+                {sampleCSV}
+              </pre>
+              <Button
+                variant="outline"
+                size="sm"
+                className="absolute top-2 right-2"
+                onClick={handleCopyCSV}
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy
+                  </>
+                )}
               </Button>
-            </a>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground">
+                  Copy the above 5 sample records to quickly test the import, or download a full CSV file with 50 records for comprehensive testing.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={handleDownloadCSV}
+                className="whitespace-nowrap"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download 50 Records
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </main>
