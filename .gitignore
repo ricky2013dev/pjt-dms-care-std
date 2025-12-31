@@ -6,3 +6,6 @@ vite.config.ts.*
 *.tar.gz
 .env*
 .replit*
+
+# Security: Exclude admin creation script
+script/create-admin.ts
