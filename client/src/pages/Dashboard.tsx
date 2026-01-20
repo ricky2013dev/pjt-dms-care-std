@@ -6,7 +6,7 @@ import { Users, UserCheck, GraduationCap, UserPlus } from "lucide-react";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { CourseChart } from "@/components/dashboard/CourseChart";
-import { TrendsChart } from "@/components/dashboard/TrendsChart";
+import { LocationChart } from "@/components/dashboard/LocationChart";
 import { useLocation } from "wouter";
 
 export default function Dashboard() {
@@ -91,14 +91,11 @@ export default function Dashboard() {
 
               <Card>
                 <CardHeader className="pb-2 sm:pb-3 md:pb-6 px-3 sm:px-6 pt-3 sm:pt-6">
-                  <CardTitle className="text-base sm:text-lg md:text-xl">Registration Trends</CardTitle>
-                  <CardDescription className="text-xs md:text-sm">Student registrations over time</CardDescription>
+                  <CardTitle className="text-base sm:text-lg md:text-xl">Students by Location</CardTitle>
+                  <CardDescription className="text-xs md:text-sm">Distribution across all locations</CardDescription>
                 </CardHeader>
                 <CardContent className="px-2 sm:px-4 md:px-6 pb-3 sm:pb-6">
-                  <TrendsChart
-                    monthlyData={data.monthlyTrends}
-                    weeklyData={data.weeklyTrends}
-                  />
+                  <LocationChart data={data.locationDistribution} />
                 </CardContent>
               </Card>
             </div>
